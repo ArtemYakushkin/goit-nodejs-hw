@@ -1,50 +1,59 @@
-const crypto = require('crypto')
-const DB = require('./db')
-const db = new DB('./contacts.json')
+const fs = require('fs/promises');
+const { v4 } = require('uuid');
 
+const filePath = require("./filePath");
 
 const listContacts = async () => {
-    return await db.read()
-}
+  const data = await fs.readFile(filePath);
+  const contacts = JSON.parse(data);
+  return contacts;
+};
 
 const getContactById = async (contactId) => {
-    const contacts = await db.read()
-    const [contact] = contacts.filter((contact) => contact.id === contactId)
-    return contact
-}
+  const contacts = await listContacts();
+  const result = contacts.find(item => item.id === contactId);
+  if (!result) {
+    return null;
+  }
+  return result;
+};
 
 const removeContact = async (contactId) => {
-    const contacts = await db.read()
-    const index = contacts.findIndex((contact) => contact.id === contactId)
-    if(index !== -1) {
-      const [result] = contacts.splice(index, 1)
-      await db.write(contacts)
-      return result
-    }
-    return null}
+  const contacts = await listContacts();
+  const idx = contacts.findIndex(item => item.id === contactId);
+  if (idx === -1) {
+    return null;
+  }
+  const newContacts = contacts.filter((_, index) => index !== idx);
+  await updateContacts(newContacts);
+  return contacts[idx];
+};
 
 const addContact = async (body) => {
-    const contacts = await db.read()
-    const newContact = {
-    id: crypto.randomUUID(),
-    ...body
-  }
-  contacts.push(newContact)
-  await db.write(contacts)
-  return newContact
-}
+  const contacts = await listContacts();
+  const newContacts = { ...body, id: v4() };
+  contacts.push(newContacts);
+  await updateContacts(contacts);
+  return newContacts;
+};
 
-const updateContact = async (contactId, body) => {
-    const contacts = await db.read()
-    const index = contacts.findIndex((contact) => contact.id === contactId)
-    if(index !== -1) {
-        const contact = contacts[index]
-        contacts[index] = {...contact, ...body}
-        await db.write(contacts)
-        return contacts[index]
-    }
-    return null
-}
+const updateContact = async (id, body) => {
+  const contacts = await listContacts();
+  const idx = contacts.findIndex(item => item.id === id);
+  console.log(7);
+  if (idx === -1) {
+    return null;
+  }
+  contacts[idx] = { ...body, id };
+  await updateContacts(contacts);
+  return contacts[idx];
+};
+
+
+const updateContacts = async (contacts) => {
+  await fs.writeFile(filePath, JSON.stringify(contacts));
+};
+
 
 module.exports = {
   listContacts,
