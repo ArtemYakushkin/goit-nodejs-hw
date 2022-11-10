@@ -1,19 +1,19 @@
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 
-dotenv.config();
+const app = require("./app");
 
-const {HOST_DB} = process.env;
+const { DB_HOST, PORT = 3000 } = process.env;
 
-async function main() {
-  
-  try {
-    await mongoose.connect(HOST_DB);
-    console.log("connected");
-  } catch (error) {
-    console.error("Error", error.message);
-  }
-  
-};
+mongoose
+  .connect(DB_HOST)
+  .then(() => {
+    console.log("Database connection successful");
+    // app.listen(PORT); 
+  })
+  .catch((error) => {
+    console.log(error.message);
+    process.exit(1);
+  });
 
-main();
+
+// mongodb+srv://admin:z2cHEFJZQ5Woir2e@cluster0.s8gwcld.mongodb.net/db-contacts
