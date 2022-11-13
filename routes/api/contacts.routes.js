@@ -10,7 +10,7 @@ router.get("/:contactId", ctrlWrapper(contactsOperations.getById));
 router.post('/', validation(addSchema), ctrlWrapper(contactsOperations.add));
 router.delete('/:contactId', ctrlWrapper(contactsOperations.removeById));
 router.put('/:contactId', validation(schemaUpdate), ctrlWrapper(contactsOperations.updateById));
-router.patch('/:contactId', validation(schemaUpdateFavorite), ctrlWrapper(contactsOperations.updateStatusContact));
+router.patch('/:contactId/favorite', validation(schemaUpdateFavorite), ctrlWrapper(contactsOperations.updateStatusContact));
 
 
 module.exports = router;
