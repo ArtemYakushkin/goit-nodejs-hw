@@ -55,10 +55,35 @@ async function logout(req, res, next) {
     await User.findByIdAndUpdate(_id, { token: "" });
 
     res.status(204);
-}
+};
+
+async function getCurrent(req, res, next) {
+    const { email,  subscription} = req.user;
+    
+    res.json({
+        email,
+        subscription
+    });
+};
+
+async function updateSubscription(req, res, next) { 
+    const { authorization = "" } = req.headers;
+    const [bearer = "", token = ""] = authorization.split(" ");
+    if (bearer !== "Bearer") {
+        throw createError(401);
+    };
+    const { id } = jwt.verify(token, SECRET_KEY);
+    const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
+    if (!updatedUser) {
+        throw createError(404);
+    };
+    res.json(updatedUser);
+};
 
 module.exports = {
     signup,
     login,
     logout,
+    getCurrent,
+    updateSubscription,
 };
