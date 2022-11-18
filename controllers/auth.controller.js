@@ -50,7 +50,15 @@ async function login(req, res, next) {
     })
 };
 
+async function logout(req, res, next) {
+    const { _id } = req.user;
+    await User.findByIdAndUpdate(_id, { token: "" });
+
+    res.status(204);
+}
+
 module.exports = {
     signup,
     login,
+    logout,
 };
