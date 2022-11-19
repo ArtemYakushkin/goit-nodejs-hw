@@ -16,7 +16,7 @@ app.use(express.json());
 const contactsRouter = require("./routes/api/contacts.routes");
 const authRouter = require("./routes/api/auth.routes");
 
-app.use("/api/auth", authRouter);
+app.use("/api/users", authRouter);
 app.use("/api/contacts", contactsRouter);
 
 app.use((req, res) => {
