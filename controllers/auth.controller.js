@@ -67,16 +67,16 @@ async function getCurrent(req, res, next) {
 };
 
 async function updateSubscription(req, res, next) { 
-    const { authorization = "" } = req.headers;
-    const [bearer = "", token = ""] = authorization.split(" ");
-    if (bearer !== "Bearer") {
+    const { _id } = req.user
+    const { subscription } = req.body
+    if (subscription !== 'starter' && subscription !== 'pro' && subscription !== 'business') {
         throw createError(401);
-    };
-    const { id } = jwt.verify(token, SECRET_KEY);
-    const updatedUser = await User.findByIdAndUpdate(id, req.body, { new: true });
+    }
+    const updatedUser = await User.findByIdAndUpdate(_id, { subscription }, { new: true })
+
     if (!updatedUser) {
-        throw createError(404);
-    };
+        throw createError(401);
+    }
     res.json(updatedUser);
 };
 
