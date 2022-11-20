@@ -5,14 +5,14 @@ const createError = require("../helpers/createError");
 const { SECRET_KEY } = process.env;
 
 async function signup(req, res, next) {
-    const { email, password } = req.body;
+    const { email, password, subscription } = req.body;
     const user = await User.findOne({ email });
     if (user) {
         throw (createError(409, 'Email in use'));
     }
 
     const hashPass = await bcrypt.hash(password, 10);
-    const registerUser = await User.create({ email, password: hashPass });
+    const registerUser = await User.create({ email, password: hashPass, subscription });
 
     return res.status(201).json({
         user: {
