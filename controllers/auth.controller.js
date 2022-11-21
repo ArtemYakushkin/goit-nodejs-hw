@@ -67,17 +67,17 @@ async function getCurrent(req, res, next) {
 };
 
 async function updateSubscription(req, res, next) { 
-    const { _id } = req.user
-    const { subscription } = req.body
-    if (subscription !== 'starter' && subscription !== 'pro' && subscription !== 'business') {
-        throw createError(401);
+    const userId = req.user._id;
+    const user = await User.updateSubscription(userId, req.body);
+    if (user) {
+        return res.status(200).json({
+            data: {
+                email: user.email,
+                subscription: user.subscription,
+            },
+        });
     }
-    const updatedUser = await User.findByIdAndUpdate(_id, { subscription }, { new: true })
-
-    if (!updatedUser) {
-        throw createError(401);
-    }
-    res.json(updatedUser);
+    throw createError(401);
 };
 
 module.exports = {
