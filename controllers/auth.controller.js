@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models/user.models");
 const createError = require("../helpers/createError");
 const { SECRET_KEY } = process.env;
+const { uuid } = require("uuid");
+const { sendMail } = require("../utils/sendEmail");
 
 async function signup(req, res, next) {
     const { email, password, subscription } = req.body;
@@ -11,8 +13,19 @@ async function signup(req, res, next) {
         throw (createError(409, 'Email in use'));
     }
 
+    const verifyToken = uuid();
     const hashPass = await bcrypt.hash(password, 10);
-    const registerUser = await User.create({ email, password: hashPass, subscription });
+    const registerUser = await User.create({ email, password: hashPass, subscription, verifyToken });
+
+    const data = {
+        to: email,
+        subject: "Confirmation of registration",
+        html: `<p>Please, confirm your email <a href="http://localhost:3000/api/users/verify/${verifyToken}" target="_blank">${email}</a> to start using app</p>`,
+    }; 
+
+    const fromEmail = "beza2910@ukr.net";
+
+    await sendMail(data, fromEmail);
 
     return res.status(201).json({
         user: {
